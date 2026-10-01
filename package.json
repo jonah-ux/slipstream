@@ -4,9 +4,16 @@
   "description": "A small local SQLite + sqlite-vec index for fast, inspectable agent retrieval.",
   "license": "MIT",
   "type": "commonjs",
+  "exports": {
+    ".": "./lib/engine.js"
+  },
   "main": "lib/engine.js",
-  "engines": { "node": ">=20" },
-  "bin": { "slipstream": "bin/slipstream.js" },
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "slipstream": "bin/slipstream.js"
+  },
   "scripts": {
     "test": "node --test --test-concurrency=1 test/*.test.js && node bin/slipstream.js self-test",
     "demo": "node bin/slipstream.js self-test",
@@ -23,5 +30,8 @@
   "bugs": {
     "url": "https://github.com/jonah-ux/slipstream/issues"
   },
-  "homepage": "https://github.com/jonah-ux/slipstream#readme"
+  "homepage": "https://github.com/jonah-ux/slipstream#readme",
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true
+  }
 }
