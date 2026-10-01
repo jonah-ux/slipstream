@@ -103,8 +103,8 @@ corpora, hooks, telemetry, credentials, customer data, and internal adapters.
 - **Failure:** non-zero exit codes and concise stderr messages; no hidden
   network calls or credential reads.
 
-The library API lives in [`lib/engine.js`](lib/engine.js). The CLI is a thin,
-agent-friendly wrapper in [`bin/slipstream.js`](bin/slipstream.js).
+The package entrypoint exposes the library API from [`lib/engine.js`](lib/engine.js).
+The CLI is a thin, agent-friendly wrapper in [`bin/slipstream.js`](bin/slipstream.js).
 
 ## Project status
 
