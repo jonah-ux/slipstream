@@ -74,7 +74,8 @@ manifest from the current read-only index and refuses changed rows, changed vect
 metadata, dimension drift, or runtime mismatch. Rows are canonically ordered by stable item
 identity, and metadata digests use canonical JSON, so equivalent input ordering and object key
 ordering produce the same content identity. A failed `verify` command exits non-zero. The manifest
-never stores raw vectors or caller metadata.
+never stores raw vectors or caller metadata; stored vector bytes are labeled little-endian
+float32 for the supported sqlite-vec runtime.
 
 ## Why this exists
 

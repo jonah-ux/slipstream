@@ -11,6 +11,8 @@
   failed verification return a non-zero CLI exit;
 - added finite float32 and non-empty string ID validation, package identity,
   stored-vector byte checks, metric parsing, and atomic manifest output guards;
+- resolved symlinked index paths before copying SQLite sidecars and labeled the
+  stored vector byte order in the manifest;
 - extended the offline self-test and CLI suite to prove the inspect contract and
   refusal behavior when vector parity is damaged.
 
