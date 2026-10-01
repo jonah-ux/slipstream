@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const engine = require('../lib/engine');
+const engine = require('slipstream-local-index');
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'slipstream-integration-'));
 const dbPath = path.join(root, 'index.db');
