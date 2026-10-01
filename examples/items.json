@@ -1,0 +1,6 @@
+[
+  {"id":"chatlens","kind":"tool","name":"Chatlens","title":"Recover missing agent context","one_liner":"Search local coding-agent sessions","vector":[0.95,0.12,0.04,0.08,0.15,0.11,0.05,0.02],"meta":{"command":"chatlens search"}},
+  {"id":"context-pack","kind":"tool","name":"Context Pack","title":"Bound repository inputs","one_liner":"Create deterministic context with a digest","vector":[0.10,0.95,0.12,0.03,0.09,0.05,0.15,0.04],"meta":{"command":"context-pack build"}},
+  {"id":"agent-proof","kind":"tool","name":"Agent Proof","title":"Record an inspectable outcome","one_liner":"Write a machine-readable evidence envelope","vector":[0.06,0.12,0.95,0.14,0.05,0.08,0.11,0.03],"meta":{"command":"agent-proof create"}},
+  {"id":"worktree-conservator","kind":"tool","name":"Worktree Conservator","title":"Retire worktrees safely","one_liner":"Plan, archive, and verify Git worktree cleanup","vector":[0.08,0.06,0.12,0.94,0.13,0.10,0.04,0.09],"meta":{"command":"worktree-conservator plan"}}
+]

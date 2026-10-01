@@ -1,0 +1,17 @@
+{
+  "name": "slipstream-local-index",
+  "version": "0.1.0",
+  "description": "A small local SQLite + sqlite-vec index for fast, inspectable agent retrieval.",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "bin": { "slipstream": "bin/slipstream.js" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/*.test.js && node bin/slipstream.js self-test",
+    "demo": "node bin/slipstream.js self-test"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "sqlite-vec": "^0.1.9"
+  }
+}
