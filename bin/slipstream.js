@@ -13,12 +13,13 @@ const flags = Object.fromEntries(args.slice(1).filter((arg) => arg.startsWith('-
   return [key, rest.length ? rest.join('=') : true];
 }));
 
-const usage = `Usage: slipstream <build|query|bench|self-test> [options]
+const usage = `Usage: slipstream <build|query|bench|inspect|self-test> [options]
 
 Commands:
   build      index a JSON fixture or caller-owned vector file
   query      return nearest items as stable JSON
   bench      measure repeated local queries
+  inspect    verify index tables, vector parity, metadata, and identity digest
   self-test  run an offline SQLite + sqlite-vec round trip
 
 Options:
@@ -97,6 +98,10 @@ function bench() {
   } finally { db.close(); }
 }
 
+function inspect() {
+  output(engine.inspectIndex(dbPath()));
+}
+
 function selfTest() {
   const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'slipstream-self-test-')), 'index.db');
   const items = [
@@ -107,8 +112,9 @@ function selfTest() {
   const db = engine.openIndex(file, { readonly: true });
   try {
     const results = engine.search(db, [0.99, 0.01, 0, 0, 0, 0, 0, 0], 1);
-    if (built.indexed !== 2 || results[0]?.id !== 'alpha') throw new Error('nearest-neighbor assertion failed');
-    output({ schema: 'slipstream/self-test/v1', pass: true, indexed: built.indexed, nearest: results[0].id, db_removed: true });
+    const inspected = engine.inspectIndex(file);
+    if (built.indexed !== 2 || results[0]?.id !== 'alpha' || !inspected.ok || inspected.item_count !== 2 || inspected.vector_count !== 2) throw new Error('nearest-neighbor or inspect assertion failed');
+    output({ schema: 'slipstream/self-test/v1', pass: true, indexed: built.indexed, nearest: results[0].id, inspect_ok: inspected.ok, db_removed: true });
   } finally { db.close(); engine.cleanupDbFamily(file); fs.rmSync(path.dirname(file), { recursive: true, force: true }); }
 }
 
@@ -117,6 +123,7 @@ try {
   else if (command === 'build') build();
   else if (command === 'query') query();
   else if (command === 'bench') bench();
+  else if (command === 'inspect') inspect();
   else if (command === 'self-test') selfTest();
   else die(`unknown command: ${command}\n\n${usage}`);
 } catch (error) { die(error.message); }

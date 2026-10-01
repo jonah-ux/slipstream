@@ -19,5 +19,10 @@ test('CLI builds, queries, and benchmarks the checked-in fixture', () => {
   assert.equal(query.results[0].id, 'chatlens');
   const bench = JSON.parse(execFileSync(process.execPath, [cli, 'bench', `--db=${db}`, '--vector=0.9,0.1,0,0,0,0,0,0', '--n=3'], { encoding: 'utf8' }));
   assert.equal(bench.iterations, 3);
+  const inspect = JSON.parse(execFileSync(process.execPath, [cli, 'inspect', `--db=${db}`], { encoding: 'utf8' }));
+  assert.equal(inspect.schema, 'slipstream/inspect/v1');
+  assert.equal(inspect.ok, true);
+  assert.equal(inspect.item_count, 4);
+  assert.equal(inspect.vector_count, 4);
   fs.rmSync(dir, { recursive: true, force: true });
 });
