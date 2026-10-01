@@ -22,3 +22,16 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm rebuild better-sqlite3
       - run: npm test
+      - name: verify packed consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_dir="$RUNNER_TEMP/slipstream-package"
+          consumer_dir="$RUNNER_TEMP/slipstream-consumer"
+          mkdir -p "$package_dir" "$consumer_dir"
+          package_file="$(npm pack --silent --pack-destination "$package_dir")"
+          cd "$consumer_dir"
+          npm init -y >/dev/null
+          npm install --ignore-scripts "$package_dir/$package_file"
+          npm rebuild better-sqlite3
+          ./node_modules/.bin/slipstream self-test
