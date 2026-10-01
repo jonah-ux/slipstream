@@ -31,6 +31,8 @@ slipstream build --input=examples/items.json --db=.slipstream/demo.db --dim=8
 slipstream query --db=.slipstream/demo.db --vector=0.9,0.1,0,0,0,0,0,0 --k=2
 slipstream bench --db=.slipstream/demo.db --vector=0.9,0.1,0,0,0,0,0,0 --n=30
 slipstream inspect --db=.slipstream/demo.db
+slipstream manifest --db=.slipstream/demo.db --out=.slipstream/demo.manifest.json
+slipstream verify --db=.slipstream/demo.db --manifest=.slipstream/demo.manifest.json
 ```
 
 The query response is machine-readable and intentionally explicit:
@@ -65,6 +67,13 @@ Inspect a built index without exposing item metadata or embedding values:
 orphan and missing rows, metadata JSON, stable identity digest, and kind counts. Metadata values
 are represented by type and SHA-256 only; source tokens and caller-owned values are not printed.
 
+`manifest` adds a stronger content-bound readback. It records the float32 index family, dimension,
+metric, SQLite and sqlite-vec versions, runtime build identity, redacted metadata digests, and
+per-row digests covering IDs, labels, metadata, and stored vector bytes. `verify` regenerates that
+manifest from the current read-only index and refuses changed rows, changed vectors, changed
+metadata, dimension drift, or runtime mismatch. The manifest never stores raw vectors or caller
+metadata.
+
 ## Why this exists
 
 Coding agents repeatedly ask a similar question: *which tool or document is
@@ -86,6 +95,8 @@ corpora, hooks, telemetry, credentials, customer data, and internal adapters.
   elapsed time; optional `--kind` filtering is supported.
 - **Inspect:** reads the index without mutation and reports whether its tables,
   vector rows, metadata, and identity summary agree.
+- **Manifest:** emits a redacted content identity that another consumer can
+  verify later without exposing vectors or caller-owned metadata.
 - **Failure:** non-zero exit codes and concise stderr messages; no hidden
   network calls or credential reads.
 
