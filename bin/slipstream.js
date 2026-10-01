@@ -108,33 +108,61 @@ function manifest() {
   const value = engine.createManifest(dbPath());
   if (flags.out) {
     const destination = path.resolve(String(flags.out));
-    fs.writeFileSync(destination, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+    const db = dbPath();
+    const forbidden = new Set([db, `${db}-wal`, `${db}-shm`]);
+    const forbiddenStats = [];
+    for (const candidate of [db, `${db}-wal`, `${db}-shm`]) {
+      if (fs.existsSync(candidate)) {
+        forbidden.add(fs.realpathSync(candidate));
+        forbiddenStats.push(fs.statSync(candidate));
+      }
+    }
+    const destinationStat = fs.existsSync(destination) ? fs.statSync(destination) : null;
+    const aliasesIndex = destinationStat && forbiddenStats.some((stat) => stat.dev === destinationStat.dev && stat.ino === destinationStat.ino);
+    if (forbidden.has(destination) || (destinationStat && forbidden.has(fs.realpathSync(destination))) || aliasesIndex) {
+      throw new Error('--out cannot overwrite the index database or its SQLite sidecars');
+    }
+    const temporary = `${destination}.tmp-${process.pid}-${Date.now()}`;
+    try {
+      fs.writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+      fs.renameSync(temporary, destination);
+    } finally { fs.rmSync(temporary, { force: true }); }
     output({ schema: value.schema, ok: true, path: destination, manifest_sha256: value.manifest_sha256 });
   } else output(value);
 }
 
 function verifyManifest() {
   if (!flags.manifest) throw new Error('--manifest=PATH is required');
-  output(engine.verifyManifest(dbPath(), flags.manifest));
+  const result = engine.verifyManifest(dbPath(), flags.manifest);
+  output(result);
+  if (!result.ok) process.exitCode = 1;
 }
 
 function selfTest() {
   const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'slipstream-self-test-')), 'index.db');
+  const reorderedFile = `${file}.reordered`;
   const items = [
-    { id: 'alpha', kind: 'fixture', name: 'Alpha', one_liner: 'first', vector: [1, 0, 0, 0, 0, 0, 0, 0] },
+    { id: 'alpha', kind: 'fixture', name: 'Alpha', one_liner: 'first', meta: { z: 1, a: 2 }, vector: [1, 0, 0, 0, 0, 0, 0, 0] },
     { id: 'bravo', kind: 'fixture', name: 'Bravo', one_liner: 'second', vector: [0, 1, 0, 0, 0, 0, 0, 0] },
   ];
   const built = engine.rebuildAtomic(file, items, { dim: 8 });
+  engine.rebuildAtomic(reorderedFile, [
+    { ...items[1] },
+    { ...items[0], meta: { a: 2, z: 1 } },
+  ], { dim: 8 });
   const db = engine.openIndex(file, { readonly: true });
   try {
     const results = engine.search(db, [0.99, 0.01, 0, 0, 0, 0, 0, 0], 1);
     const inspected = engine.inspectIndex(file);
     const manifestPath = `${file}.manifest.json`;
-    fs.writeFileSync(manifestPath, `${JSON.stringify(engine.createManifest(file), null, 2)}\n`, 'utf8');
+    const manifest = engine.createManifest(file);
+    const reorderedManifest = engine.createManifest(reorderedFile);
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
     const manifestVerified = engine.verifyManifest(file, manifestPath);
-    if (built.indexed !== 2 || results[0]?.id !== 'alpha' || !inspected.ok || inspected.item_count !== 2 || inspected.vector_count !== 2 || !manifestVerified.ok) throw new Error('nearest-neighbor, inspect, or manifest assertion failed');
-    output({ schema: 'slipstream/self-test/v1', pass: true, indexed: built.indexed, nearest: results[0].id, inspect_ok: inspected.ok, manifest_verified: manifestVerified.ok, db_removed: true });
-  } finally { db.close(); engine.cleanupDbFamily(file); fs.rmSync(path.dirname(file), { recursive: true, force: true }); }
+    const deterministic = manifest.manifest_sha256 === reorderedManifest.manifest_sha256;
+    if (built.indexed !== 2 || results[0]?.id !== 'alpha' || !inspected.ok || inspected.item_count !== 2 || inspected.vector_count !== 2 || !manifestVerified.ok || !deterministic) throw new Error('nearest-neighbor, inspect, or manifest assertion failed');
+    output({ schema: 'slipstream/self-test/v1', pass: true, indexed: built.indexed, nearest: results[0].id, inspect_ok: inspected.ok, manifest_verified: manifestVerified.ok, manifest_deterministic: deterministic, db_removed: true });
+  } finally { db.close(); engine.cleanupDbFamily(file); engine.cleanupDbFamily(reorderedFile); fs.rmSync(path.dirname(file), { recursive: true, force: true }); }
 }
 
 try {

@@ -7,6 +7,13 @@
   identity digests, kind counts, and redacted metadata readback;
 - added `slipstream/manifest/v1` and `verify` for redacted row/vector content
   identity, sqlite-vec runtime readback, and changed-index refusal;
+- made manifests deterministic across input and metadata key ordering, and made
+  failed verification return a non-zero CLI exit;
+- added finite float32 and non-empty string ID validation, package identity,
+  stored-vector byte checks, metric parsing, and atomic manifest output guards;
+- resolved symlinked index paths before copying SQLite sidecars and labeled the
+  stored vector byte order in the manifest;
+- exposed `lib/engine.js` as the package entrypoint for library consumers;
 - extended the offline self-test and CLI suite to prove the inspect contract and
   refusal behavior when vector parity is damaged.
 

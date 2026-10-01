@@ -71,8 +71,11 @@ are represented by type and SHA-256 only; source tokens and caller-owned values 
 metric, SQLite and sqlite-vec versions, runtime build identity, redacted metadata digests, and
 per-row digests covering IDs, labels, metadata, and stored vector bytes. `verify` regenerates that
 manifest from the current read-only index and refuses changed rows, changed vectors, changed
-metadata, dimension drift, or runtime mismatch. The manifest never stores raw vectors or caller
-metadata.
+metadata, dimension drift, or runtime mismatch. Rows are canonically ordered by stable item
+identity, and metadata digests use canonical JSON, so equivalent input ordering and object key
+ordering produce the same content identity. A failed `verify` command exits non-zero. The manifest
+never stores raw vectors or caller metadata; stored vector bytes are labeled little-endian
+float32 for the supported sqlite-vec runtime.
 
 ## Why this exists
 
@@ -87,7 +90,7 @@ corpora, hooks, telemetry, credentials, customer data, and internal adapters.
 
 ## Contract
 
-- **Input:** non-empty JSON items with an `id` and a fixed-length numeric
+- **Input:** non-empty JSON items with a non-empty string `id` and a fixed-length numeric
   `vector`; optional `kind`, labels, and JSON metadata.
 - **Build:** refuses empty or all-invalid inputs and replaces the index only
   after a complete temporary build succeeds.
@@ -100,8 +103,8 @@ corpora, hooks, telemetry, credentials, customer data, and internal adapters.
 - **Failure:** non-zero exit codes and concise stderr messages; no hidden
   network calls or credential reads.
 
-The library API lives in [`lib/engine.js`](lib/engine.js). The CLI is a thin,
-agent-friendly wrapper in [`bin/slipstream.js`](bin/slipstream.js).
+The package entrypoint exposes the library API from [`lib/engine.js`](lib/engine.js).
+The CLI is a thin, agent-friendly wrapper in [`bin/slipstream.js`](bin/slipstream.js).
 
 ## Project status
 
