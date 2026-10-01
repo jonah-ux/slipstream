@@ -108,11 +108,11 @@ The CLI is a thin, agent-friendly wrapper in [`bin/slipstream.js`](bin/slipstrea
 
 ## Project status
 
-`0.2.0` is the current source candidate. The local float-vector path, synthetic
-fixture, inspect readback, CLI contract, and offline tests are covered. Provider
-adapters, embedding orchestration, and hosted indexes are intentionally out of
-scope. The existing public release remains `v0.1.0` until a new annotated tag
-and fresh consumer readback are published.
+`0.2.0` is the current public release. The local float-vector path, synthetic
+fixture, inspect readback, CLI contract, packed-consumer gate, and offline tests
+are covered. Provider adapters, embedding orchestration, and hosted indexes are
+intentionally out of scope. The release is verified from its packed artifact in
+a clean consumer; native `better-sqlite3` builds remain part of installation.
 
 See [`CHANGELOG.md`](CHANGELOG.md), [`SECURITY.md`](SECURITY.md), and
 [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a change.
