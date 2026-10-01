@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 — unreleased
+## 0.2.0 — 2026-10-01
 
 - added a read-only `inspect` command and `slipstream/inspect/v1` contract for
   vector dimension, item/vector parity, orphan and missing rows, stable item
