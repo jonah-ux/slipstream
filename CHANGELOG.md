@@ -5,6 +5,8 @@
 - added a read-only `inspect` command and `slipstream/inspect/v1` contract for
   vector dimension, item/vector parity, orphan and missing rows, stable item
   identity digests, kind counts, and redacted metadata readback;
+- added `slipstream/manifest/v1` and `verify` for redacted row/vector content
+  identity, sqlite-vec runtime readback, and changed-index refusal;
 - extended the offline self-test and CLI suite to prove the inspect contract and
   refusal behavior when vector parity is damaged.
 
