@@ -21,6 +21,21 @@ test('builds and searches a local vector index', () => {
   } finally { engine.cleanupDbFamily(file); fs.rmSync(path.dirname(file), { recursive: true, force: true }); }
 });
 
+test('failed rebuild preserves the previous valid index', () => {
+  const file = tempDb();
+  try {
+    engine.rebuildAtomic(file, [
+      { id: 'kept', kind: 'tool', vector: [1, 0, 0, 0] },
+    ], { dim: 4 });
+    assert.throws(() => engine.rebuildAtomic(file, [
+      { id: 'bad', kind: 'tool', vector: [1, 0] },
+    ], { dim: 4 }), /no valid 4-dimension vectors/);
+    const db = engine.openIndex(file, { readonly: true });
+    assert.deepEqual(engine.search(db, [1, 0, 0, 0], 1).map((row) => row.id), ['kept']);
+    db.close();
+  } finally { engine.cleanupDbFamily(file); fs.rmSync(path.dirname(file), { recursive: true, force: true }); }
+});
+
 test('refuses an empty build', () => {
   const file = tempDb();
   try { assert.throws(() => engine.rebuildAtomic(file, [], { dim: 4 }), /refusing empty index build/); }
