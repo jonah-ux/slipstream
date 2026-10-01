@@ -9,7 +9,8 @@
   "bin": { "slipstream": "bin/slipstream.js" },
   "scripts": {
     "test": "node --test --test-concurrency=1 test/*.test.js && node bin/slipstream.js self-test",
-    "demo": "node bin/slipstream.js self-test"
+    "demo": "node bin/slipstream.js self-test",
+    "integration-example": "node examples/caller_owned_vectors.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",
