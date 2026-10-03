@@ -22,6 +22,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm rebuild better-sqlite3
       - run: npm test
+      - name: Public surface audit
+        run: node scripts/audit_public_surface.js --json
       - name: verify packed consumer
         shell: bash
         run: |
