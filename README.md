@@ -13,12 +13,16 @@ owns the bounded index and the read path.
 JSON vectors → local SQLite index → nearest results + timing receipt
 ```
 
+## Vector inspector
+
+Open the [standalone vector inspector](docs/inspector.html) for a visual readback of the local query path. Its coordinates and distances are synthetic teaching data, clearly labeled as not a benchmark; it has no CDN, hosted service, embedding provider, or sibling repository dependency.
+
 ## Install and run
 
 Requires Node.js 20+.
 
 ```bash
-git clone https://github.com/jonah-ux/slipstream.git
+git clone --branch v0.2.0 --depth 1 https://github.com/jonah-ux/slipstream.git
 cd slipstream
 npm ci
 npm test
@@ -27,12 +31,12 @@ npm test
 Build the included synthetic fixture and query it:
 
 ```bash
-slipstream build --input=examples/items.json --db=.slipstream/demo.db --dim=8
-slipstream query --db=.slipstream/demo.db --vector=0.9,0.1,0,0,0,0,0,0 --k=2
-slipstream bench --db=.slipstream/demo.db --vector=0.9,0.1,0,0,0,0,0,0 --n=30
-slipstream inspect --db=.slipstream/demo.db
-slipstream manifest --db=.slipstream/demo.db --out=.slipstream/demo.manifest.json
-slipstream verify --db=.slipstream/demo.db --manifest=.slipstream/demo.manifest.json
+node bin/slipstream.js build --input=examples/items.json --db=.slipstream/demo.db --dim=8
+node bin/slipstream.js query --db=.slipstream/demo.db --vector=0.9,0.1,0,0,0,0,0,0 --k=2
+node bin/slipstream.js bench --db=.slipstream/demo.db --vector=0.9,0.1,0,0,0,0,0,0 --n=30
+node bin/slipstream.js inspect --db=.slipstream/demo.db
+node bin/slipstream.js manifest --db=.slipstream/demo.db --out=.slipstream/demo.manifest.json
+node bin/slipstream.js verify --db=.slipstream/demo.db --manifest=.slipstream/demo.manifest.json
 ```
 
 The query response is machine-readable and intentionally explicit:
