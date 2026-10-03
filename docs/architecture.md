@@ -41,6 +41,14 @@ caller-owned JSON vectors
 
 Empty or all-invalid input, dimension mismatch, non-finite values, malformed metadata, missing/orphan rows, vector-byte drift, dimension drift, runtime mismatch, and incomplete SQLite schema fail with non-zero results or thrown errors. Temporary build files are cleaned up on failure, and the previous destination remains available for a retry.
 
+Binary-vector callers use the same bounded local boundary. `buildBit` keeps the existing
+`docs`/`vec_docs` schema, skips rows whose `bitstring` is not a string, has the wrong dimension,
+or contains a character outside `0` and `1`, and returns `{ indexed, skipped, errors }`. Each error
+contains the input row index, a stable code, and a concise message. Direct `packBits` calls throw
+for the same malformed values instead of coercing unexpected characters to zero. The CLI does not
+own a separate bit-index format; callers read the returned accounting and inspect the local SQLite
+tables they own.
+
 ## Non-goals
 
 Slipstream does not generate embeddings, call a hosted provider, expose a hosted search API, store private corpora, or claim retrieval quality from a synthetic fixture alone. Benchmarks are measurements of the selected local runtime and fixture.
