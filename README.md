@@ -13,6 +13,10 @@ owns the bounded index and the read path.
 JSON vectors → local SQLite index → nearest results + timing receipt
 ```
 
+## Vector inspector
+
+Open the [standalone vector inspector](docs/inspector.html) for a visual readback of the local query path. Its coordinates and distances are synthetic teaching data, clearly labeled as not a benchmark; it has no CDN, hosted service, embedding provider, or sibling repository dependency.
+
 ## Install and run
 
 Requires Node.js 20+.
