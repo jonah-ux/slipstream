@@ -120,3 +120,17 @@ a clean consumer; native `better-sqlite3` builds remain part of installation.
 
 See [`CHANGELOG.md`](CHANGELOG.md), [`SECURITY.md`](SECURITY.md), and
 [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a change.
+
+## Public surface audit
+
+Run the owner-native supply-chain and privacy audit from a clean checkout:
+
+```bash
+node scripts/audit_public_surface.js --json
+```
+
+The static receipt checks package/lockfile identity, the license declaration, release-workflow
+provenance markers, and high-signal secret patterns across tracked text files. Pass a packed
+directory with `--dist-dir dist` to compare `.tgz` bytes with `SHA256SUMS`. Missing artifacts remain
+`unavailable`; a passing audit does not claim security, deployment, adoption, or production
+readiness.

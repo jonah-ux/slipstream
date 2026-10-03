@@ -1,0 +1,55 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm rebuild better-sqlite3
+      - run: npm test
+      - name: Validate release identity
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const {execFileSync} = require('node:child_process');
+          const tag = process.env.RELEASE_TAG;
+          if (!/^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/.test(tag)) throw new Error('release tag must be vMAJOR.MINOR.PATCH');
+          const version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+          if (tag !== `v${version}`) throw new Error(`tag ${tag} does not match package version ${version}`);
+          if (execFileSync('git', ['cat-file', '-t', `refs/tags/${tag}`], {encoding: 'utf8'}).trim() !== 'tag') throw new Error('release tag must be annotated');
+          const tagCommit = execFileSync('git', ['rev-parse', `refs/tags/${tag}^{}`], {encoding: 'utf8'}).trim();
+          const head = execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim();
+          if (tagCommit !== head) throw new Error('release tag does not identify checked-out HEAD');
+          console.log(`Release identity verified: ${tag} -> ${head}`);
+          NODE
+      - name: Pack and checksum
+        run: |
+          mkdir -p dist
+          npm pack --silent --pack-destination dist
+          sha256sum dist/* > dist/SHA256SUMS
+      - name: Verify packed consumer
+        run: |
+          npm install --prefix "$RUNNER_TEMP/slipstream-consumer" --ignore-scripts dist/*.tgz
+          npm rebuild --prefix "$RUNNER_TEMP/slipstream-consumer" better-sqlite3
+          "$RUNNER_TEMP/slipstream-consumer/node_modules/.bin/slipstream" self-test
+      - name: Publish prerelease assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" dist/* --repo "${{ github.repository }}" --verify-tag --title "${{ github.repository }} ${{ github.ref_name }}" --generate-notes --prerelease
