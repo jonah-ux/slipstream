@@ -44,7 +44,7 @@ The query response is machine-readable and intentionally explicit:
 ```json
 {
   "schema": "slipstream/query/v1",
-  "results": [{"id": "chatlens", "distance": 0.020000...}],
+  "results": [{"id": "chatlens", "distance": 0.02}],
   "elapsed_ms": 0.2
 }
 ```
