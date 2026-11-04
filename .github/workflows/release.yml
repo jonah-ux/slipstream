@@ -52,4 +52,6 @@ jobs:
       - name: Publish prerelease assets
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" dist/* --repo "${{ github.repository }}" --verify-tag --title "${{ github.repository }} ${{ github.ref_name }}" --generate-notes --prerelease
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+        run: gh release create "$RELEASE_TAG" dist/* --repo "$RELEASE_REPOSITORY" --verify-tag --title "$RELEASE_REPOSITORY $RELEASE_TAG" --generate-notes --prerelease
